@@ -51,6 +51,20 @@
             cursor: not-allowed;
         }
 
+        button {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+        }
+        button:hover{
+            background-color: #0056b3;
+        }
         #ap_list {
             margin-top: 20px;
             border-top: 1px solid #ccc;
@@ -105,7 +119,7 @@
 <body>
     <div class="language-switch">
         <select id="language" onchange="changeLanguage()">
-            <option value="">文A</option>
+            <option value="">EN</option>
         </select>
     </div>
     
@@ -120,7 +134,15 @@
             </ul>
         </div>
         <div>
-            <h3>SNR:<label id="SNR">-</label></h3>
+            <button type="button" onclick="">Acustic test</button>
+            <br/>
+            <button type="button" onclick="">LED test</button>
+            <button type="button" onclick="">Load RFID status</button>
+            <h3>Statuses:</h3>
+            <h4>SNR:<label id="SNR">-</label></h4>
+            <h4>RFID reader:<label id="readerTest">-</h4>
+            <h4>Acustic:<label id="invokeAcustic">-</h4>
+            <h4>LED:<label id="LED">-</h4>
             <h3 data-lang="new_wifi">New WiFi</h3>
             <p class="error" style="color: red; text-align: center;" id="error">
             </p>
@@ -154,6 +176,23 @@
                 .then(data => {
                     document.getElementById('SNR').innerHTML = data.SNR
                 });
+        }
+        function getRFIDTestStatus(){
+            fetch('/getRFIDStatus')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('readerTest').innerHTML = data.status
+                });
+        }
+        function invokeAcustic(){
+            fetch('/invokeAcustic')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('readerTest').innerHTML = data.status
+                });
+        }
+        function invokeLED(){
+
         }
         updateSNR();
         function changeLanguage() {
