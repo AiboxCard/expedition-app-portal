@@ -306,6 +306,48 @@ void WifiConfigurationAp::StartWebServer()
     };
     ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &getSNR));
 
+    httpd_uri_t getRFIDStatus = {
+        .uri = "/getRFIDStatus",
+        .method = HTTP_GET,
+        .handler = [](httpd_req_t *req) -> esp_err_t {
+            string response = string("{\"status\":\"OK\"}");
+            
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, response.c_str(), response.length());  
+            return ESP_OK;
+        },
+        .user_ctx = this
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &getRFIDStatus));
+
+    httpd_uri_t invokeAcustic = {
+        .uri = "/invokeAcustic",
+        .method = HTTP_GET,
+        .handler = [](httpd_req_t *req) -> esp_err_t {
+            string response = string("{\"status\":\"OK\"}");
+            
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, response.c_str(), response.length());  
+            return ESP_OK;
+        },
+        .user_ctx = this
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &invokeAcustic));
+
+    httpd_uri_t invokeLED = {
+        .uri = "/invokeLED",
+        .method = HTTP_GET,
+        .handler = [](httpd_req_t *req) -> esp_err_t {
+            string response = string("{\"status\":\"OK\"}");
+            
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_send(req, response.c_str(), response.length());  
+            return ESP_OK;
+        },
+        .user_ctx = this
+    };
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &invokeLED));
+
     // Register the form submission
     httpd_uri_t form_submit = {
         .uri = "/submit",

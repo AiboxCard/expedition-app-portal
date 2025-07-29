@@ -188,11 +188,15 @@
             fetch('/invokeAcustic')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('readerTest').innerHTML = data.status
+                    document.getElementById('invokeAcustic').innerHTML = data.status
                 });
         }
         function invokeLED(){
-
+            fetch('/invokeLED')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('invokeLED').innerHTML = data.status
+                });
         }
         updateSNR();
         function changeLanguage() {
