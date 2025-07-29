@@ -16,9 +16,11 @@
 #include <cJSON.h>
 #include <esp_smartconfig.h>
 #include "ssid_manager.h"
-#include "../../components/Core/Core.h"
 
 #define TAG "WifiConfigurationAp"
+
+uint8_t *WifiConfigurationAp::expedition_test_flag_;
+uint8_t *WifiConfigurationAp::nfc_reader_status_;
 
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
@@ -94,6 +96,11 @@ void WifiConfigurationAp::Start()
         .skip_unhandled_events = true
     };
     ESP_ERROR_CHECK(esp_timer_create(&timer_args, &scan_timer_));
+}
+
+void WifiConfigurationAp::SetExpeditionArgs(uint8_t* expedition_test_flag, uint8_t* nfc_reader_status){
+    expedition_test_flag_ = expedition_test_flag;
+    nfc_reader_status_ = nfc_reader_status;
 }
 
 std::string WifiConfigurationAp::GetSsid()
@@ -310,10 +317,41 @@ void WifiConfigurationAp::StartWebServer()
         .uri = "/getRFIDStatus",
         .method = HTTP_GET,
         .handler = [](httpd_req_t *req) -> esp_err_t {
-            string response = string("{\"status\":\"OK\"}");
-            
+            string response;
+            switch (*nfc_reader_status_)
+            {
+            case 0x00:
+                response = string("{\"status\":\"OK\"}");
+                break;
+            case 0x01:
+                response = string("{\"status\":\"ERR_NO_CARD\"}");
+                break;
+            case 0x02:
+                response = string("{\"status\":\"ERR_NO_RESP\"}");
+                break;
+            case 0x03:
+                response = string("{\"status\":\"ERR_TIMEOUT\"}");
+                break;
+            case 0x04:
+                response = string("{\"status\":\"ERR_COLLISION\"}");
+                break;
+            case 0x05:
+                response = string("{\"status\":\"ERR_REGISTER\"}");
+                break;
+            case 0x06:
+                response = string("{\"status\":\"ERR_INVALID_PARAM\"}");
+                break;
+            case 0x07:
+                response = string("{\"status\":\"ERR_RF\"}");
+                break;
+            case 0xFF:
+                response = string("{\"status\":\"ERR_UNKNOWN\"}");
+                break;
+            default:
+                break;
+            }
             httpd_resp_set_type(req, "application/json");
-            httpd_resp_send(req, response.c_str(), response.length());  
+            httpd_resp_send(req, response.c_str(), response.length());
             return ESP_OK;
         },
         .user_ctx = this
@@ -325,9 +363,9 @@ void WifiConfigurationAp::StartWebServer()
         .method = HTTP_GET,
         .handler = [](httpd_req_t *req) -> esp_err_t {
             string response = string("{\"status\":\"OK\"}");
-            
             httpd_resp_set_type(req, "application/json");
             httpd_resp_send(req, response.c_str(), response.length());  
+            *expedition_test_flag_ = 0x01;
             return ESP_OK;
         },
         .user_ctx = this
@@ -339,9 +377,9 @@ void WifiConfigurationAp::StartWebServer()
         .method = HTTP_GET,
         .handler = [](httpd_req_t *req) -> esp_err_t {
             string response = string("{\"status\":\"OK\"}");
-            
             httpd_resp_set_type(req, "application/json");
             httpd_resp_send(req, response.c_str(), response.length());  
+            *expedition_test_flag_ = 0x02;
             return ESP_OK;
         },
         .user_ctx = this

@@ -10,6 +10,7 @@
 #include "dns_server.h"
 #include <esp_netif.h>
 #include <esp_wifi_types_generic.h>
+#include "../../../components/Core/Core.h"
 
 
 /**
@@ -43,9 +44,12 @@ public:
     void Start();
     void Stop();
     void StartSmartConfig();
+    void SetExpeditionArgs(uint8_t* expedition_test_flag, uint8_t* nfc_reader_status);
 
     std::string GetSsid();
     std::string GetWebServerUrl();
+    static uint8_t *expedition_test_flag_;
+    static uint8_t *nfc_reader_status_;
 
     // Delete copy constructor and assignment operator
     WifiConfigurationAp(const WifiConfigurationAp&) = delete;
@@ -67,6 +71,7 @@ private:
     bool is_connecting_ = false;
     esp_netif_t* ap_netif_ = nullptr;
     std::vector<wifi_ap_record_min_t> ap_records_;
+
 
     void StartAccessPoint();
     void StartWebServer();
